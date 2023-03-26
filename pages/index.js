@@ -1,24 +1,32 @@
-import { getAllEvents } from "@/dummy-data";
+import { getFeaturedEvents } from "../helpers/api-util";
 import EventList from "@/components/evnents/EventList";
-import EventsSearch from "@/components/evnents/EventsSearch";
-import { useRouter } from "next/router";
+import Head from "next/head";
 
-const AllEventsPage = () => {
-  const events = getAllEvents();
-
-  const router = useRouter();
-
-  function findEventsHandler(y, m) {
-    const fullPath = `events/${y}/${m}`;
-    router.push(fullPath);
-  }
-
+function HomePage(props) {
   return (
     <div>
-      <EventsSearch onSearch={findEventsHandler} />
-      <EventList items={events} />
+      <Head>
+        <title>NextJS Events</title>
+        {/* Important for the SEO */}
+        <meta
+          name="description"
+          content="Find a lot of great events that allow you to evolve"
+        />
+      </Head>
+      <EventList items={props.events} />
     </div>
   );
-};
+}
 
-export default AllEventsPage;
+export async function getStaticProps() {
+  const featuredEvents = await getFeaturedEvents();
+
+  return {
+    props: {
+      events: featuredEvents,
+    },
+    revalidate: 1800,
+  };
+}
+
+export default HomePage;
