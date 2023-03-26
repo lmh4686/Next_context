@@ -1,9 +1,12 @@
-import { Fragment } from "react";
-import { getEventById, getFeaturedEvents } from "../../helpers/api-util";
-import EventSummary from "../../components/event-detail/event-summary";
-import EventLogistics from "../../components/event-detail/event-logistics";
-import EventContent from "../../components/event-detail/event-content";
-import Head from "next/head";
+import { Fragment } from 'react';
+import Head from 'next/head';
+
+import { getEventById, getFeaturedEvents } from '../../helpers/api-util';
+import EventSummary from '../../components/event-detail/event-summary';
+import EventLogistics from '../../components/event-detail/event-logistics';
+import EventContent from '../../components/event-detail/event-content';
+import ErrorAlert from '../../components/ui/error-alert';
+import Comments from '../../components/input/comments';
 
 function EventDetailPage(props) {
   const event = props.selectedEvent;
@@ -20,9 +23,8 @@ function EventDetailPage(props) {
     <Fragment>
       <Head>
         <title>{event.title}</title>
-        {/* Important for the SEO */}
         <meta
-          name="description"
+          name='description'
           content={event.description}
         />
       </Head>
@@ -36,6 +38,7 @@ function EventDetailPage(props) {
       <EventContent>
         <p>{event.description}</p>
       </EventContent>
+      <Comments eventId={event.id} />
     </Fragment>
   );
 }
@@ -45,26 +48,22 @@ export async function getStaticProps(context) {
 
   const event = await getEventById(eventId);
 
-  if (!event) {
-    return {notFound: true};
-  }
-
   return {
     props: {
-      selectedEvent: event,
+      selectedEvent: event
     },
-    revalidate: 30,
+    revalidate: 30
   };
 }
 
 export async function getStaticPaths() {
   const events = await getFeaturedEvents();
 
-  const paths = events.map((event) => ({ params: { eventId: event.id } }));
+  const paths = events.map(event => ({ params: { eventId: event.id } }));
 
   return {
     paths: paths,
-    fallback: true,
+    fallback: 'blocking'
   };
 }
 
